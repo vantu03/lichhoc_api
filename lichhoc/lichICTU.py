@@ -159,7 +159,7 @@ class LichSinhVienICTU:
                         'Địa điểm': str(df.iloc[i, col_room]).strip(),
                         'Buổi': session_counter[cell],
                     },
-                    'hiden': {
+                    'hidden': {
                         'Giảng viên': str(df.iloc[i, col_teacher]).strip(),
                     },
                 }
@@ -227,7 +227,7 @@ class LichSinhVienICTU:
                     'Ca thi': str(df.iloc[i, col_period]).strip(),
                     'Địa điểm': str(df.iloc[i, col_room]).strip()
                 },
-                'hiden': {
+                'hidden': {
                     'Hình thức': str(df.iloc[i, col_form]).strip(),
                     'Số báo danh': str(df.iloc[i, col_sbd]).strip(),
                     'Số tín chỉ': str(df.iloc[i, col_tc]).strip()
