@@ -2,7 +2,8 @@ from django.http import JsonResponse
 from .lichICTU import LichSinhVienICTU
 
 def home(request):
-    pass
+    return JsonResponse({"message": "Welcome to Lich Hoc API"}, json_dumps_params={"ensure_ascii": False})
+
 
 def lichhoc_api(request):
     tk = request.GET.get('username')
