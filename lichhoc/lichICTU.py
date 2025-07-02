@@ -102,7 +102,7 @@ class LichSinhVienICTU:
             # Cập nhật startDate và endDate theo lịch thực tế
             dates = [x['date'] for x in self.result['message']['schedule'] if x.get('date')]
             if dates:
-                self.result['message']['startDate'] = self.today.strftime("%d/%m/%Y")
+                self.result['message']['startDate'] = dates[0]
                 self.result['message']['endDate'] = dates[-1]
 
         except requests.RequestException as e:
@@ -114,6 +114,9 @@ class LichSinhVienICTU:
         response = self.session.get('https://dangkytinchi.ictu.edu.vn/kcntt/Reports/Form/StudentTimeTable.aspx')
         soup = BeautifulSoup(response.text, 'html.parser')
         form_data = self.extract_form_fields(soup.find('form'))
+        # Lấy ngày hiện tại trừ đi 4 năm
+        tu_ngay = datetime.today() - timedelta(days=365 * 4)
+        form_data['txtTuNgay'] = tu_ngay.strftime('%d/%m/%Y')
         response = self.session.post(url=response.url, data=form_data)
 
         if not response.headers['Content-Type'].startswith('application/vnd.ms-excel'):
@@ -184,6 +187,9 @@ class LichSinhVienICTU:
         response = self.session.get('https://dangkytinchi.ictu.edu.vn/kcntt/StudentViewExamList.aspx')
         soup = BeautifulSoup(response.text, 'html.parser')
         form_data = self.extract_form_fields(soup.find('form'))
+        # Lấy ngày hiện tại trừ đi 4 năm
+        tu_ngay = datetime.today() - timedelta(days=365 * 4)
+        form_data['txtTuNgay'] = tu_ngay.strftime('%d/%m/%Y')
         response = self.session.post(url=response.url, data=form_data)
 
         if not response.headers['Content-Type'].startswith('application/vnd.ms-excel'):
