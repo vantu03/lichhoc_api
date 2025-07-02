@@ -13,12 +13,12 @@ class LichSinhVienICTU:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
         })
 
-        today = datetime.today()
+        self.today = datetime.today()
         self.result = {
             'status': 'success',
             'message': {
-                'startDate': today.strftime("%d/%m/%Y"),
-                'endDate': (today + timedelta(days=7)).strftime("%d/%m/%Y"),
+                'startDate': self.today.strftime("%d/%m/%Y"),
+                'endDate': (self.today + timedelta(days=7)).strftime("%d/%m/%Y"),
                 'schedule': []
             }
         }
@@ -102,7 +102,7 @@ class LichSinhVienICTU:
             # Cập nhật startDate và endDate theo lịch thực tế
             dates = [x['date'] for x in self.result['message']['schedule'] if x.get('date')]
             if dates:
-                self.result['message']['startDate'] = dates[0]
+                self.result['message']['startDate'] = self.today.strftime("%d/%m/%Y")
                 self.result['message']['endDate'] = dates[-1]
 
         except requests.RequestException as e:
