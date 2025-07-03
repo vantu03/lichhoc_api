@@ -1,7 +1,16 @@
 from flask import Flask, request, jsonify
 from lichICTU import LichSinhVienICTU
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+CORS(app, origins=[
+    "http://localhost",
+    "http://127.0.0.1",
+    "http://localhost:5000",
+    "http://127.0.0.1:5000",
+    "https://sv.pro.vn"
+])
 
 @app.route('/')
 def home():
