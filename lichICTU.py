@@ -119,7 +119,7 @@ class LichSinhVienICTU:
         form_data['txtTuNgay'] = tu_ngay.strftime('%d/%m/%Y')
         response = self.session.post(url=response.url, data=form_data)
 
-        if not response.headers['Content-Type'].startswith('application/vnd.ms-excel'):
+        if not response.headers['Content-Type'].startswith('application/vnd.ms-excel') :
             return
 
         df = pd.read_excel(BytesIO(response.content), engine='xlrd')
