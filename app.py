@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify
 from lichICTU import LichSinhVienICTU
 from flask_cors import CORS
+from flask import Flask, request, render_template, jsonify
+from pywebpush import webpush, WebPushException
+import json, os
 
 app = Flask(__name__)
 
@@ -28,9 +31,12 @@ def load_subs():
 
 def save_sub(sub):
     subs = load_subs()
-    subs.append(sub)
-    with open(subs_file, "w") as f:
-        json.dump(subs, f)
+    endpoints = [s["endpoint"] for s in subs]
+    if sub["endpoint"] not in endpoints:
+        subs.append(sub)
+        with open(subs_file, "w") as f:
+            json.dump(subs, f)
+
 
 @app.route("/")
 def index():
