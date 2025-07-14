@@ -4,13 +4,7 @@ from lichICTU import LichSinhVienICTU
 
 app = Flask(__name__)
 
-CORS(app, origins=[
-    "http://localhost",
-    "http://127.0.0.1",
-    "http://localhost:5000",
-    "http://127.0.0.1:5000",
-    "https://sv.pro.vn"
-])
+CORS(app)
 
 @app.route('/')
 def home():
