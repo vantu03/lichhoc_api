@@ -1,17 +1,8 @@
 from flask import Flask, request, jsonify
-from lichICTU import LichSinhVienICTU
 from flask_cors import CORS
-from flask import Flask, request, render_template, jsonify
-from pywebpush import webpush, WebPushException
-import json, os
+from lichICTU import LichSinhVienICTU
 
 app = Flask(__name__)
-
-VAPID_PUBLIC_KEY = "BGv5IqaSOkLg3Iu5zc4mMmJEsDaIqAactL646vsmAHz1bA44WOvweQe4ZLz2RsPyqwOzlaZf4EMVuzha6rezzZ4"
-VAPID_PRIVATE_KEY = "ADK-gJnekc4f12jr8uRR7HuLIfzF7hTTJxt4mZYp5sY"
-VAPID_CLAIMS = {"sub": "mailto:you@example.com"}
-
-subs_file = "subscriptions.json"
 
 CORS(app, origins=[
     "http://localhost",
@@ -21,53 +12,11 @@ CORS(app, origins=[
     "https://sv.pro.vn"
 ])
 
-subs_file = "subscriptions.json"
+@app.route('/')
+def home():
+    return 'Flask API Lịch học ICTU hoạt động!'
 
-def load_subs():
-    if os.path.exists(subs_file):
-        with open(subs_file, "r") as f:
-            return json.load(f)
-    return []
-
-def save_sub(sub):
-    subs = load_subs()
-    endpoints = [s["endpoint"] for s in subs]
-    if sub["endpoint"] not in endpoints:
-        subs.append(sub)
-        with open(subs_file, "w") as f:
-            json.dump(subs, f)
-
-
-@app.route("/")
-def index():
-    return render_template("index.html", vapid_public_key=VAPID_PUBLIC_KEY)
-
-@app.route("/subscribe", methods=["POST"])
-def subscribe():
-    sub = request.get_json()
-    save_sub(sub)
-    return jsonify({"status": "subscribed"})
-
-@app.route("/send", methods=["POST"])
-def send():
-    payload = json.dumps({
-        "title": "Thông báo từ Flask!",
-        "body": "Xin chào từ server Python Flask!"
-    })
-    errors = []
-    for sub in load_subs():
-        try:
-            webpush(
-                subscription_info=sub,
-                data=payload,
-                vapid_private_key=VAPID_PRIVATE_KEY,
-                vapid_claims=VAPID_CLAIMS
-            )
-        except WebPushException as e:
-            errors.append(str(e))
-    return jsonify({"status": "done", "errors": errors})
-
-@app.route('/api/', methods=['GET'])
+@app.route('/lichhoc/', methods=['GET'])
 def lichhoc_api():
     tk = request.args.get('username')
     mk = request.args.get('password')
