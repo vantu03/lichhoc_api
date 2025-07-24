@@ -94,7 +94,7 @@ def upload_firebase_config():
     return jsonify({'success': True})
 
 
-@notify_bp.route('/save_token', methods=['POST'])
+@notify_bp.route('/token', methods=['POST'])
 def save_device_token():
     token = request.json.get('token')
     if not token:
