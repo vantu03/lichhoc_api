@@ -1,7 +1,8 @@
-from flask import Blueprint, request, jsonify
-from models import db, Token, FcmToken, FirebaseCredential
+from flask import Blueprint, request, jsonify, abort
+from models import db, FcmToken, FirebaseCredential
 import firebase_admin
 from firebase_admin import credentials, messaging
+from firebase_admin.exceptions import FirebaseError, UnregisteredError, InvalidArgumentError
 import json
 
 notify_bp = Blueprint('notify', __name__, url_prefix='/notify')
@@ -27,44 +28,53 @@ def init_firebase_if_needed(server_name):
     except Exception as e:
         raise Exception(f"Lỗi khi khởi tạo Firebase cho server '{server_name}': {e}")
 
+
 @notify_bp.route('/send', methods=['POST'])
 def send_notification():
-    server_name = request.form.get('server')
-    title = request.form.get('title')
-    body = request.form.get('body')
+    server_name = request.form.get('server', '').strip()
+    title = request.form.get('title', '').strip()
+    body = request.form.get('body', '').strip()
+
+    if not server_name or not title or not body:
+        abort(400, 'Thiếu thông tin server/title/body')
 
     try:
         app_instance = init_firebase_if_needed(server_name)
     except Exception as e:
         return str(e), 500
 
-    tokens = Token.query.all()
+    tokens = FcmToken.query.all()
     if not tokens:
         return 'No tokens found!', 404
 
     success_count = 0
     error_count = 0
+    invalid_tokens = []
+
     for t in tokens:
-        token = t.token
+        fcm_token = t.token
         message = messaging.Message(
             notification=messaging.Notification(title=title, body=body),
-            token=token,
+            token=fcm_token,
         )
         try:
             response = messaging.send(message, app=app_instance)
-            print("✅ Sent to:", token, "|", response)
+            print("✅ Sent to:", fcm_token, "|", response)
             success_count += 1
-        except firebase_admin.exceptions.FirebaseError as e:
-            print("❌ Firebase error to:", token, "|", e)
-            if isinstance(e, messaging.UnregisteredError) or \
-               isinstance(e, messaging.InvalidArgumentError):
-                print("⚠️ Token invalid. Deleting:", token)
-                db.session.delete(t)
-                db.session.commit()
+        except FirebaseError as e:
+            print("❌ Firebase error to:", fcm_token, "|", e)
+            if isinstance(e, (UnregisteredError, InvalidArgumentError)):
+                print("⚠️ Token invalid. Marked for deletion:", fcm_token)
+                invalid_tokens.append(t)
             error_count += 1
         except Exception as e:
-            print("❌ Unknown error to:", token, "|", e)
+            print("❌ Unknown error to:", fcm_token, "|", e)
             error_count += 1
+
+    if invalid_tokens:
+        for bad in invalid_tokens:
+            db.session.delete(bad)
+        db.session.commit()
 
     return jsonify({
         'success': True,
@@ -77,7 +87,7 @@ def send_notification():
 @notify_bp.route('/upload_firebase', methods=['POST'])
 def upload_firebase_config():
     file = request.files.get('json_file')
-    server_name = request.form.get('server_name')
+    server_name = request.form.get('server_name', '').strip()
 
     if not file or not server_name:
         return jsonify({'success': False, 'message': 'Thiếu file hoặc tên server'}), 400
@@ -96,11 +106,12 @@ def upload_firebase_config():
 
 @notify_bp.route('/token', methods=['POST'])
 def save_device_token():
-    token = request.json.get('token')
+    token = request.json.get('token', '').strip()
     if not token:
-        return jsonify({'success': False, 'message': 'Missing token'}), 400
+        return jsonify({'success': False, 'message': 'Thiếu token'}), 400
 
     if not FcmToken.query.filter_by(token=token).first():
         db.session.add(FcmToken(token=token))
         db.session.commit()
+
     return jsonify({'success': True})
