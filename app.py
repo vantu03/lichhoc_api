@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from config import Config
 from models import db
+import subprocess, os
 
 # Import các blueprint
 from routes.auth import auth_bp
@@ -26,6 +27,20 @@ def create_app():
     app.register_blueprint(schedule_bp)
     app.register_blueprint(notify_bp)
     app.register_blueprint(home_bp)
+
+
+    # ✅ Route webhook GITHUB
+    @app.route('/git-webhook', methods=['POST'])
+    def git_webhook():
+        try:
+            # Lấy đường dẫn thư mục hiện tại của app.py
+            project_dir = os.path.dirname(os.path.abspath(__file__))
+
+            subprocess.run(['git', '-C', project_dir, 'pull'], check=True)
+            subprocess.run(['systemctl', 'restart', 'svpro'], check=True)
+            return 'Updated and restarted.', 200
+        except subprocess.CalledProcessError as e:
+            return f'Error: {e}', 500
 
     return app
 
