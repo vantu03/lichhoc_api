@@ -1,26 +1,34 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 from flask_cors import CORS
-from lichICTU import LichSinhVienICTU
+from config import Config
+from models import db
 
-app = Flask(__name__)
+# Import các blueprint
+from routes.auth import auth_bp
+from routes.schedule import schedule_bp
+from routes.notify import notify_bp
+from routes.home import home_bp
 
-CORS(app)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
 
-@app.route('/')
-def home():
-    return 'Flask API Lịch học ICTU hoạt động!'
+    # Khởi tạo CORS
+    CORS(app)
 
-@app.route('/lichhoc/', methods=['GET'])
-def lichhoc_api():
-    tk = request.args.get('username')
-    mk = request.args.get('password')
+    # Khởi tạo database
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
 
-    if not tk or not mk:
-        return jsonify({'status': 'error', 'message': 'Thiếu tài khoản hoặc mật khẩu'}), 400
+    # Đăng ký blueprint
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(schedule_bp)
+    app.register_blueprint(notify_bp)
+    app.register_blueprint(home_bp)
 
-    lich = LichSinhVienICTU(tk, mk)
-    data = lich.get_schedule()
-    return jsonify(data)
+    return app
 
 if __name__ == '__main__':
+    app = create_app()
     app.run(debug=True)
