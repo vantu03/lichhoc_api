@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Token, FirebaseCredential
+from models import db, Token, FcmToken, FirebaseCredential
 import firebase_admin
 from firebase_admin import credentials, messaging
 import json
@@ -100,7 +100,7 @@ def save_device_token():
     if not token:
         return jsonify({'success': False, 'message': 'Missing token'}), 400
 
-    if not Token.query.filter_by(token=token).first():
-        db.session.add(Token(token=token))
+    if not FcmToken.query.filter_by(token=token).first():
+        db.session.add(FcmToken(token=token))
         db.session.commit()
     return jsonify({'success': True})
