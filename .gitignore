@@ -1,1 +1,6 @@
-".env" 
+venv/
+.env
+.idea/
+*.iml
+*.bat
+*.sqlite3
