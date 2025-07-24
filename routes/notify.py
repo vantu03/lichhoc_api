@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify, abort
 from models import db, FcmToken, FirebaseCredential
 import firebase_admin
 from firebase_admin import credentials, messaging
-from firebase_admin.exceptions import FirebaseError, UnregisteredError, InvalidArgumentError
 import json
 
 notify_bp = Blueprint('notify', __name__, url_prefix='/notify')
@@ -61,14 +60,9 @@ def send_notification():
             response = messaging.send(message, app=app_instance)
             print("✅ Sent to:", fcm_token, "|", response)
             success_count += 1
-        except FirebaseError as e:
-            print("❌ Firebase error to:", fcm_token, "|", e)
-            if isinstance(e, (UnregisteredError, InvalidArgumentError)):
-                print("⚠️ Token invalid. Marked for deletion:", fcm_token)
-                invalid_tokens.append(t)
-            error_count += 1
         except Exception as e:
             print("❌ Unknown error to:", fcm_token, "|", e)
+            invalid_tokens.append(t)
             error_count += 1
 
     if invalid_tokens:
