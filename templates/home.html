@@ -71,7 +71,7 @@
         document.getElementById('upload-form').addEventListener('submit', function (e) {
             e.preventDefault();
             const form = new FormData(this);
-            fetch('/upload_firebase', {
+            fetch('/notify/upload_firebase', {
                 method: 'POST',
                 body: form
             }).then(res => res.text()).then(msg => {
@@ -88,7 +88,7 @@
             const server = document.getElementById('server').value;
 
             const xhr = new XMLHttpRequest();
-            xhr.open("POST", "/send", true);
+            xhr.open("POST", "/notify/send", true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onload = function () {
                 document.getElementById("status").textContent = xhr.status === 200
