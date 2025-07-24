@@ -3,6 +3,7 @@ Flask
 Flask-SQLAlchemy
 flask-cors
 gunicorn
+python-dotenv
 
 # ==== Firebase / Cloud ====
 firebase-admin
