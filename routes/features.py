@@ -8,7 +8,9 @@ feature_bp = Blueprint('feature', __name__, url_prefix='/features')
 #@token_required
 def list_features():
     features = Feature.query.filter_by(active=True).all()
-    return jsonify([f.to_dict() for f in features]), 200
+    response = make_response(jsonify([f.to_dict() for f in features]), 200)
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 @feature_bp.route('/<string:key>', methods=['GET'])
 #@token_required
