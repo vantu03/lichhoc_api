@@ -15,10 +15,11 @@ def list_features():
 def feature_detail(key):
     feature = Feature.query.filter_by(key=key, active=True).first()
     if not feature:
-        return jsonify({'error': 'Feature not found'}), 404
+        return jsonify({'error': f'Feature with key {key} not found'}), 404
 
     detail = FeatureDetail.query.filter_by(feature_id=feature.id).first()
     if not detail:
-        return jsonify({'error': 'Detail not found'}), 404
+        return jsonify({'error': f'Detail for feature_id {feature.id} not found'}), 404
 
     return jsonify(detail.to_dict()), 200
+
