@@ -28,7 +28,7 @@ def create_app():
     app.register_blueprint(schedule_bp)
     app.register_blueprint(notify_bp)
     app.register_blueprint(home_bp)
-    pp.register_blueprint(feature_bp)
+    app.register_blueprint(feature_bp)
 
 
     #Route webhook GITHUB
