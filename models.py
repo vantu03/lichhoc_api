@@ -74,11 +74,17 @@ class FeatureDetail(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     def to_dict(self):
+        try:
+            payload_data = json.loads(self.payload) if self.payload else {}
+        except json.JSONDecodeError:
+            payload_data = {}
+
         return {
             'type': self.type,
             'title': self.title,
-            **(json.loads(self.payload) if self.payload else {})
+            **payload_data
         }
+
 
     def __repr__(self):
         return f"<FeatureDetail type={self.type} for feature_id={self.feature_id}>"
