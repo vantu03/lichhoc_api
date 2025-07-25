@@ -9,6 +9,7 @@ from routes.auth import auth_bp
 from routes.schedule import schedule_bp
 from routes.notify import notify_bp
 from routes.home import home_bp
+from routes.features import feature_bp
 
 def create_app():
     app = Flask(__name__)
@@ -27,9 +28,10 @@ def create_app():
     app.register_blueprint(schedule_bp)
     app.register_blueprint(notify_bp)
     app.register_blueprint(home_bp)
+    pp.register_blueprint(feature_bp)
 
 
-    # ✅ Route webhook GITHUB
+    #Route webhook GITHUB
     @app.route('/git-webhook', methods=['POST'])
     def git_webhook():
         try:
